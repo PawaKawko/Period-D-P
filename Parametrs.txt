@@ -1,0 +1,26 @@
+#n_app_T = {number of additions in Fourier series in function Approximation T}
+	3             
+#n_becoming_perfect = {number of additions in Fourier series in function becoming perfect}
+	8
+#n_bec_per_sec = {number of additions in Fourier series in function becoming perfect second}
+	8
+#edge_appr_T = {parameter for approximation Period}
+	0.1  
+#Parametr = {parameter of cutting}
+	0.005
+#T_min = {minimal possible period (do not put less than 0.01)}
+	0.1
+#Presize_appr_T = {resolution of periodogram}
+	0.01
+#ratio = {on phase picture ratio x:y}
+	1.6
+#max_width = {beginning width to cut off dots}
+	0.25
+#N_cutting = {The number of pictures between max_width*Parametr and Parametr}
+	20
+#N_fragmentation = { to cut off dots}
+	100
+#dpi_picture = {quality of picture, but remember of time of calculation]
+	600
+#dots_size = {density}
+	10

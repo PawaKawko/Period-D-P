@@ -1,0 +1,8 @@
+HD86592 .tess 
+HD24712 .tess
+HD10840 .tess
+HD38170 .tess 
+HD63401 .tess
+HD74521 .tess
+HD77314 .tess
+HD22920 .tess
