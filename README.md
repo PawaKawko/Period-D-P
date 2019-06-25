@@ -9,3 +9,6 @@ matplotlib.pyplot  (for plotting);
 time               (to know time of calculations);
 tkinter            (graphic interface);
 os      	         (to create directories)
+
+Authors:
+  Pavlo Kashko (kashko.pavlo@gmail.com) - main author, Dmytrii Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
