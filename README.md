@@ -15,3 +15,6 @@ Authors:
   Pavlo Kashko (kashko.pavlo@gmail.com) - main author;
   
   Dmytro Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
+ 
+ Article:
+  "Revealing nature of HD63401"
