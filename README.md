@@ -8,7 +8,7 @@ numpy              (for math stuff);
 matplotlib.pyplot  (for plotting);
 time               (to know time of calculations);
 tkinter            (graphic interface);
-os      	         (to create directories)
+os      	       (to create directories)
 
 Authors:
 
