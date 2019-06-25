@@ -12,4 +12,6 @@ os      	         (to create directories)
 
 Authors:
 
-  Pavlo Kashko (kashko.pavlo@gmail.com) - main author, Dmytro Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
+  Pavlo Kashko (kashko.pavlo@gmail.com) - main author;
+  
+  Dmytro Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
