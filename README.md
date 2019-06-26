@@ -16,7 +16,7 @@ Authors:
   
   Dmytro Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
   
-  Copyright
+  ©kashko
  
  Article:
   "Revealing nature of HD63401"
