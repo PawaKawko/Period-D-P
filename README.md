@@ -17,6 +17,7 @@ Authors:
   Dmytro Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
   
   ©Kashko2019 (see LICENSE)
+  
   DOI: 10.5281/zenodo.3257785
  
  Article:
