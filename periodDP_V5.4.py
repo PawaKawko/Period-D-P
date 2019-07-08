@@ -3,6 +3,8 @@
 #Then programm build a light curve and phase curve. All dots that are stands out from the approximation 
 #is cutted off. Program writes in the file the pictures of phase curves and data with cutted points
 
+#!/usr/bin/env python
+# -*- coding: utf-8 -
 """==========================================="""
 """Changes"""
 """==========================================="""
@@ -57,7 +59,7 @@ def sin(t, pp, n):                  #approximation of function by Fourie series 
     x = np.zeros(len(t))            #creating array with the size of data
     x += pp[0]                      #constant
     for i in range(n):
-        x += pp[2*i+2]*np.sin(2*np.pi*t*(i+1)/pp[1]+pp[2*i+3])      # x = SUM( A*sin(t + φ))
+        x += pp[2*i+2]*np.sin(2*np.pi*t*(i+1)/pp[1]+pp[2*i+3])      # x = SUM( A*sin(t + phi))
     return x
 
 def sin1(t, pp, n):                 #the same as sin but give you not array, but a value
@@ -71,7 +73,7 @@ def sin1(t, pp, n):                 #the same as sin but give you not array, but
 """==========================================="""
 
 def read_data(name, ftype):
-    Name = path_file + '\\data\\' + name + ftype    #data is stored in the same sirectory in the folder "data"
+    Name = path_file + '/data/' + name + ftype    #data is stored in the same sirectory in the folder "data"
     with open(Name, 'r') as file:                   #each file should be named "Name_star.type"
         x, y, y_err = [], [], []                    #set arrays
         lines = file.readlines()                    #lines - list; read() - not work
@@ -134,7 +136,7 @@ def becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, 
     ans_ideal  = ans[0]         #ideal parametrs
                              
     order_Error = -int(np.log10(error_T))+1   #evaluate order of Error
-    save_path = path_file + '\\Results\\' + name + '\\'         #save results in the folder "Results"
+    save_path = path_file + '/Results/' + name + '/'         #save results in the folder "Results"
 
     fig = plt.figure(I*(Repeats+2) + 2)             #plot dots and curve
     plt.gca().invert_yaxis()                        #to invert y axis
@@ -194,7 +196,7 @@ def becoming_perfect_second(I, answ, x, y, y_err, n_becoming_perfect, name, ftyp
         if (X_E[i] < 0):
             X_E[i] += T_ideal   
        
-    save_path = path_file + '\\Results\\' + name + '\\'
+    save_path = path_file + '/Results/' + name + '/'
     
     A = max(x) - min(x)
     B = max(y) - min(y)
@@ -304,7 +306,7 @@ def Approximation_T(XxX, YyY, YyY_err, A, n_app_T, edge_appr_T, TTT_max, TTT_min
     fig = plt.figure(1 + I * (N_cutting + 2))
     fig.set_size_inches(20, 6)
     T_T = np.linspace(T_minnn, T_maxxx, N_N)   
-    save_path = path_file + '\\Results\\' + name + '\\'
+    save_path = path_file + '/Results/' + name + '/'
     
     for i in T_T:                                                           #for each dot
         XxX_sigma.append(i)                                                 #fill x-array
@@ -386,7 +388,7 @@ def Manual_work():
         
         if (not os.path.exists('Results')):      # Create target Directory
             os.mkdir('Results')       
-        sub_name = path_file + '\\Results\\' + name
+        sub_name = path_file + '/Results/' + name
         if (not os.path.exists(sub_name)):
             os.mkdir(sub_name)
         
@@ -394,17 +396,17 @@ def Manual_work():
         A0 = (max(y)-min(y)) / 2                                                            #approximate amplitude
         Period, Period_error, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, (T + dT), (T - dT), Presize_appr_T, name, dpi_picture) #approximate period
         if not (Error_program):
-            ans_ideal, T, ΔT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture)                         #more presize period
-            res += '    ' + str(0) + '      ' + str(T) + '   ' + str(ΔT) + '\n'                 #write basic iteration
+            ans_ideal, T, ddT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture)                         #more presize period
+            res += '    ' + str(0) + '      ' + str(T) + '   ' + str(ddT) + '\n'                 #write basic iteration
             cut_res += '   ' + str(0) + '     ' + str(0) + '\n'
             ans_ideal_2 = 1
             T_true = 0
             T_array = np.zeros(N_cutting + 1)
             
             for indicator in range(N_cutting + 1):          #N_cutting times cut phase diagram
-                T, ΔT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
+                T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
                 if not (indicator == N_cutting):
-                    res += '    ' + str(indicator + 1) + '      ' + str(T) + '     ' + str(ΔT) + '\n'
+                    res += '    ' + str(indicator + 1) + '      ' + str(T) + '     ' + str(ddT) + '\n'
                     Number_of_elements = np.round((1 - len(x)/Number_of_elements0)*100, 1)
                     cut_res += '   ' + str(indicator + 1) + '            ' + str(Number_of_elements) + '\n'
                     T_true += T
@@ -419,8 +421,8 @@ def Manual_work():
             res += '    Period: ' +  str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '\n'
             res += '\n'
             
-            results_path =  path_file + '\\Results\\' + 'results_' + name + '.dat'
-            cutted_dots_path = path_file + '\\Results\\' + 'Number_of_cutted_dots_' + name + '.dat'
+            results_path =  path_file + '/Results/' + 'results_' + name + '.dat'
+            cutted_dots_path = path_file + '/Results/' + 'Number_of_cutted_dots_' + name + '.dat'
             with open(results_path, 'w') as f:
                 f.writelines(res)
             with open(cutted_dots_path, 'w') as f:
@@ -449,7 +451,7 @@ def Manual_work():
         
     window = tnk.Tk()                                           #start window
     bcg_cl = '#9999FF'                                          #background color
-    window.title("Period D&P V5.2")                             #title of the window
+    window.title("Period D&P V5.4")                             #title of the window
     w = 900                                                     #width and height
     h = 350
     window.geometry(str(w) + 'x' + str(h))                      #set size
@@ -469,7 +471,7 @@ def Manual_work():
     ent_TypeFile.place(x = 250, y = 72)
     lb_par.place(x = 20, y = 135)
     
-    text_init = ['T approximately', 'Error of Τ', 'File with parameters']
+    text_init = ['T approximately', 'Error of T', 'File with parameters']
     init_param = [tnk.Entry(window, font = ('Bookman Old Style', 14), width = 12) for i in range(3)]
     init_param_lables = [tnk.Label(window, font = ('Century', 14), text = text_init[i], bg=bcg_cl) for i in range(3)]
     for i in range(3):
@@ -508,7 +510,7 @@ def Automatic_work():
         
     window = tnk.Tk()
     bcg_cl = '#9999FF'
-    window.title("Period D&P V5.2")
+    window.title("Period D&P V5.4")
     w = 550
     h = 320
     window.geometry(str(w) + 'x' + str(h))
@@ -570,7 +572,7 @@ def Automatic_work():
                 name = a[0]
                 ftype = a[1]
                 
-                sub_name = path_file + '\\Results\\' + name
+                sub_name = path_file + '/Results/' + name
                 if (not os.path.exists(sub_name)):
                     os.mkdir(sub_name)
     
@@ -578,7 +580,7 @@ def Automatic_work():
                 A0 = (max(y)-min(y)) / 2
                 Tappr, Terr, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, TT_max, TT_min_par, Presize_appr_T, name, dpi_picture, i, N_cutting)
                 if not Error_program:
-                    ans_ideal, T, ΔT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, i, N_cutting)
+                    ans_ideal, T, ddT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, i, N_cutting)
                     arr = [[] for i in range(N_cutting+2)]
                     arr[0] = [name, T, '']
                     cut_dots = [[] for i in range(N_cutting+2)]
@@ -588,7 +590,7 @@ def Automatic_work():
                     T_true = 0
                     
                     for indicator in range(N_cutting + 1):
-                        T, ΔT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
+                        T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
                         arr[indicator+1] = ['       ', T, '']  
                         Number_of_elements = '             ' + str(np.round((1 - len(x)/Number_of_elements0)*100, 1))
                         cut_dots[indicator+1] = ['           ', (indicator + 1), (Number_of_elements)]  
@@ -627,8 +629,8 @@ def Automatic_work():
                 print("Problem with " + str(i+1) + " star. Please check in manual mode")
                 res += 'Problem. Check ' + name + 'manually'
                 res += '\n'
-        results_path =  path_file + '\\Results\\' + 'results_' + task_file + '.dat'
-        cutted_dots_path = path_file + '\\Results\\' + 'Number_of_cutted_dots_' + task_file + '.dat'
+        results_path =  path_file + '/Results/' + 'results_' + task_file + '.dat'
+        cutted_dots_path = path_file + '/Results/' + 'Number_of_cutted_dots_' + task_file + '.dat'
         with open(results_path, 'w') as f:
             f.writelines(res)
         with open(cutted_dots_path, 'w') as f:
@@ -660,7 +662,7 @@ def Automatic_work():
 
 window_0 = tnk.Tk()
 bcg_cl = '#9999FF'
-window_0.title("Period D&P V5.2")
+window_0.title("Period D&P V5.4")
 w = 390
 h = 100
 window_0.geometry(str(w) + 'x' + str(h))
