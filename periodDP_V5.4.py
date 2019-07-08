@@ -3,6 +3,7 @@
 #Then programm build a light curve and phase curve. All dots that are stands out from the approximation 
 #is cutted off. Program writes in the file the pictures of phase curves and data with cutted points
 
+#try
 """==========================================="""
 """IMPORTING LIBRUARIES"""
 """==========================================="""
