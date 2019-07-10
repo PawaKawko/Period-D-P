@@ -3,7 +3,6 @@
 #Then programm build a light curve and phase curve. All dots that are stands out from the approximation 
 #is cutted off. Program writes in the file the pictures of phase curves and data with cutted points
 
-#try
 """==========================================="""
 """IMPORTING LIBRUARIES"""
 """==========================================="""
@@ -52,7 +51,7 @@ def sin(t, pp, n):                  #approximation of function by Fourie series 
     x = np.zeros(len(t))            #creating array with the size of data
     x += pp[0]                      #constant
     for i in range(n):
-        x += pp[2*i+2]*np.sin(2*np.pi*t*(i+1)/pp[1]+pp[2*i+3])      # x = SUM( A*sin(t + φ))
+        x += pp[2*i+2]*np.sin(2*np.pi*t*(i+1)/pp[1]+pp[2*i+3])      # x = SUM( A*sin(t + phi))
     return x
 
 def sin1(t, pp, n):                 #the same as sin but give you not array, but a value
@@ -223,12 +222,7 @@ def becoming_perfect_second(I, answ, x, y, y_err, n_becoming_perfect, name, ftyp
  
     k=0
     #d = max_width  / (1 + (max_width - Parametr)* I/((N_cutting-1)*Parametr))    #width of cutting     
-    if (I < (int(N_cutting/2)-1)):
-        d = max_width - (max_width - Parametr)*I/(int(N_cutting/2))
-    else:
-        N_times = N_cutting - int(N_cutting/2) + 1
-        d_0 = Parametr + (max_width - Parametr)*2/(int(N_cutting/2))
-        d = d_0 - (d_0 - Parametr) * (I + 2 - int(N_cutting/2))/N_times
+    d = max_width * (Parametr/max_width)**(I/(N_cutting - 1))
     
     if not (I == N_cutting):
         for i in range(Number_of_elements):                             #for each dot  
@@ -375,8 +369,6 @@ def Manual_work():
         Parametrs_file = init_param[2].get()
                                                         #read parametrs
         n_app_T, n_becoming_perfect, edge_appr_T, Parametr, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size = read_parametrs(Parametrs_file) 
-        res = 'Iteration  Period\n'             #for writing results
-        cut_res = 'Iteration   % of cutted dots \n'
         
         if (not os.path.exists('Results')):      # Create target Directory
             os.mkdir('Results')       
@@ -388,37 +380,27 @@ def Manual_work():
         A0 = (max(y)-min(y)) / 2                                                            #approximate amplitude
         Period, Period_error, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, (T + dT), (T - dT), Presize_appr_T, name, dpi_picture) #approximate period
         if not (Error_program):
-            ans_ideal, T, ΔT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size)                         #more presize period
-            res += '    ' + str(0) + '      ' + str(T) + '   ' + str(ΔT) + '\n'                 #write basic iteration
-            cut_res += '   ' + str(0) + '     ' + str(0) + '\n'
+            ans_ideal, T, ddT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size)                         #more presize period
             ans_ideal_2 = 1
-            T_true = 0
-            T_array = np.zeros(N_cutting + 1)
+            T_true = T
+            arrT = []
+            arrT.append(T)
+            K_index = 0
             
             for indicator in range(N_cutting + 1):          #N_cutting times cut phase diagram
-                T, ΔT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
-                if not (indicator == N_cutting):
-                    res += '    ' + str(indicator + 1) + '      ' + str(T) + '     ' + str(ΔT) + '\n'
-                    Number_of_elements = np.round((1 - len(x)/Number_of_elements0)*100, 1)
-                    cut_res += '   ' + str(indicator + 1) + '            ' + str(Number_of_elements) + '\n'
+                T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
+                if not (indicator == N_cutting) and not T==arrT[K_index]:
+                    arrT.append(T)
+                    K_index += 1
                     T_true += T
-                    T_array[indicator] = T
                 
-            T_true = T_true/(N_cutting)
+            T_true = T_true/(K_index+1)
             Ssigma = 0
-            for indicator in range(N_cutting):
-                Ssigma += (T_array[indicator] - T_true)**2
-            Ssigma = 3*np.sqrt(Ssigma/(N_cutting*(N_cutting-1)))
+            for indicator in range(K_index+1):
+                Ssigma += (arrT[indicator] - T_true)**2
+            Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
             order_Error = -int(np.log10(Ssigma))+1    
-            res += '    Period: ' +  str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '\n'
-            res += '\n'
             
-            results_path =  path_file + '\\Results\\' + 'results_' + name + '.dat'
-            cutted_dots_path = path_file + '\\Results\\' + 'Number_of_cutted_dots_' + name + '.dat'
-            with open(results_path, 'w') as f:
-                f.writelines(res)
-            with open(cutted_dots_path, 'w') as f:
-                f.writelines(cut_res)
             entT.insert(0, str(np.round(T_true, order_Error)))
             entdT.insert(0, str(np.round(Ssigma, order_Error)))
             t_0 = time.time() - start_time
@@ -523,8 +505,8 @@ def Automatic_work():
     ent_Par_file = tnk.Entry(window, font = ('Bookman Old Style', 14), width = 12)
     ent_Par_file.place(x = 110, y = 200)
     ent_Par_file.insert(0, 'Parametrs.txt')
-    ent_TaskFile.insert(0, 'Task1.txt')
-    ent_Tmax.insert(0, '10')
+    ent_TaskFile.insert(0, 'Task.txt')
+    #ent_Tmax.insert(0, '10')
     
     """==========================================="""
     """MAIN FUNCTION FOR AUTOMATIC MODE"""
@@ -549,7 +531,7 @@ def Automatic_work():
             if (s[i][0] == "#"):
                 del s[i]
             i += 1       
-        res = '  Name     T        time'             
+        res = '  Name           T             time\n'             
         start_time_0 = time.time()
         ent_progress_1.insert(0, '0')
         ent_progress_2.insert(0, str(len(s)))
@@ -562,7 +544,7 @@ def Automatic_work():
             a = s[i].split()
             name = a[0]
             ftype = a[1]
-            res += name + '\n'
+            res += name + '  '
             
             sub_name = path_file + '\\Results\\' + name
             if (not os.path.exists(sub_name)):
@@ -572,15 +554,15 @@ def Automatic_work():
             A0 = (max(y)-min(y)) / 2
             Tappr, Terr, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, TT_max, TT_min_par, Presize_appr_T, name, dpi_picture, i, N_cutting)
             if not Error_program:
-                ans_ideal, T, ΔT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size, i, N_cutting)
+                ans_ideal, T, ddT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size, i, N_cutting)
                 arrT = []
                 arrT.append(T)
                 ans_ideal_2=[]
                 
-                T_true = 0
+                T_true = T
                 K_index = 0
                 for indicator in range(N_cutting + 1):
-                    T, ΔT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
+                    T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
                     if not (T == arrT[K_index]):
                         arrT.append(T)
                         K_index += 1
