@@ -1,4 +1,4 @@
-HD86592 .tess 
+1 HD86592 .tess 
 HD24712 .tess
 HD10840 .tess
 HD38170 .tess 
