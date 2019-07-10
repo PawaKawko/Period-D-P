@@ -3,14 +3,6 @@
 #Then programm build a light curve and phase curve. All dots that are stands out from the approximation 
 #is cutted off. Program writes in the file the pictures of phase curves and data with cutted points
 
-#!/usr/bin/env python
-# -*- coding: utf-8 -
-"""==========================================="""
-"""Changes"""
-"""==========================================="""
-
-''' d - line '''
-
 """==========================================="""
 """IMPORTING LIBRUARIES"""
 """==========================================="""
@@ -113,7 +105,7 @@ def read_parametrs(Parametrs_file):
 """==========================================="""
 """CALCULATING PRESIZE VALUE OF PERIOD"""
 """==========================================="""
-def becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, I = 0, Repeats = 0):
+def becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size, I = 0, Repeats = 0):
     p0 = np.zeros(2*n_becoming_perfect + 2)             #start conditions 
     p0[0] = ans_start[0]                                #first = ideal from periodogram
     p0[1] = Tappr
@@ -151,7 +143,7 @@ def becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, 
     xx = np.linspace(min(x), max(x), len(x))                                            #to plot approximation on the parts, where are not data
     plt.plot(xx, sin(xx, ans_ideal, n_becoming_perfect), '-r')
     plt.savefig(save_path + name + " light curve with approximation.png", dpi = dpi_picture)    #with approximation
-    plt.show()                                                                          #to show plot during process
+                                                                              #to show plot during process
 
     return ans_ideal, np.round(T_ideal, order_Error), np.round(error_T, order_Error)
 
@@ -202,7 +194,7 @@ def becoming_perfect_second(I, answ, x, y, y_err, n_becoming_perfect, name, ftyp
     B = max(y) - min(y)
     N_periods = np.round(((max(x) - min(x))/T_ideal), 1)
             
-    hfont = {'fontname':'Helvetica'}
+    hfont = {'fontname':'Bookman Old Style'}
     fig = plt.figure(3 + I + I_star*(N_cutting + 2))  
     plt.gca().invert_yaxis()            
     fig.set_size_inches(ratio*7, 7)                 
@@ -216,7 +208,7 @@ def becoming_perfect_second(I, answ, x, y, y_err, n_becoming_perfect, name, ftyp
     plt.plot(X_E/T_ideal, y,  color = 'green', linestyle = '', marker = '.', markersize = dots_size)
     plt.text(0, (np.min(y) - 1/30*B), name, fontsize = 20, **hfont)
     plt.savefig(save_path + name + "phase curve " + str(I) + ".png", dpi = dpi_picture)
-    plt.show()
+    
     
     NName = name + " phase curve" + str(I) + ftype                      #save data in the same file type
     completeName = os.path.join(save_path, NName) 
@@ -230,12 +222,7 @@ def becoming_perfect_second(I, answ, x, y, y_err, n_becoming_perfect, name, ftyp
  
     k=0
     #d = max_width  / (1 + (max_width - Parametr)* I/((N_cutting-1)*Parametr))    #width of cutting     
-    if (I < (int(N_cutting/2)-1)):
-        d = max_width - (max_width - Parametr)*I/(int(N_cutting/2))
-    else:
-        N_times = N_cutting - int(N_cutting/2) + 1
-        d_0 = Parametr + (max_width - Parametr)*2/(int(N_cutting/2))
-        d = d_0 - (d_0 - Parametr) * (I + 2 - int(N_cutting/2))/N_times
+    d = max_width * (Parametr/max_width)**(I/(N_cutting - 1))
     
     if not (I == N_cutting):
         for i in range(Number_of_elements):                             #for each dot  
@@ -316,13 +303,12 @@ def Approximation_T(XxX, YyY, YyY_err, A, n_app_T, edge_appr_T, TTT_max, TTT_min
             VALUE, PP0 = sigma(XxX, YyY, YyY_err, i, PP0, n_app_T)          #start condition = ideal for previous
         YyY_sigma.append(VALUE)
     plt.plot(XxX_sigma, YyY_sigma, color = '#FF0000', ls = '-', lw = 2) 
-    plt.savefig(save_path + name + "periodogram with n_app_T = " + str(n_app_T) + ".png", dpi = dpi_picture)        
+    plt.savefig(save_path + name + "periodogram.png", dpi = dpi_picture)        
     
     
     value_error = False
-    if ((np.min(YyY_sigma)/np.max(YyY_sigma)) < 0.5):
+    if ((np.min(YyY_sigma)/np.max(YyY_sigma)) < 0.3):
         value_error = True
-        
     if value_error:
         YYY_min = min(YyY_sigma)                                                #find absolut minimum and normal periodogram
         for i in range(N_N):
@@ -383,8 +369,6 @@ def Manual_work():
         Parametrs_file = init_param[2].get()
                                                         #read parametrs
         n_app_T, n_becoming_perfect, edge_appr_T, Parametr, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size = read_parametrs(Parametrs_file) 
-        res = 'Iteration  Period\n'             #for writing results
-        cut_res = 'Iteration   % of cutted dots \n'
         
         if (not os.path.exists('Results')):      # Create target Directory
             os.mkdir('Results')       
@@ -396,38 +380,29 @@ def Manual_work():
         A0 = (max(y)-min(y)) / 2                                                            #approximate amplitude
         Period, Period_error, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, (T + dT), (T - dT), Presize_appr_T, name, dpi_picture) #approximate period
         if not (Error_program):
-            ans_ideal, T, ddT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture)                         #more presize period
-            res += '    ' + str(0) + '      ' + str(T) + '   ' + str(ddT) + '\n'                 #write basic iteration
-            cut_res += '   ' + str(0) + '     ' + str(0) + '\n'
+            ans_ideal, T, ddT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size)                         #more presize period
             ans_ideal_2 = 1
-            T_true = 0
-            T_array = np.zeros(N_cutting + 1)
+            T_true = T
+            arrT = []
+            arrT.append(T)
+            K_index = 0
             
             for indicator in range(N_cutting + 1):          #N_cutting times cut phase diagram
                 T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
-                if not (indicator == N_cutting):
-                    res += '    ' + str(indicator + 1) + '      ' + str(T) + '     ' + str(ddT) + '\n'
-                    Number_of_elements = np.round((1 - len(x)/Number_of_elements0)*100, 1)
-                    cut_res += '   ' + str(indicator + 1) + '            ' + str(Number_of_elements) + '\n'
+                if not (indicator == N_cutting) and not T==arrT[K_index]:
+                    arrT.append(T)
+                    K_index += 1
                     T_true += T
-                    T_array[indicator] = T
                 
-            T_true = T_true/(N_cutting)
+            T_true = T_true/(K_index+1)
             Ssigma = 0
-            for indicator in range(N_cutting):
-                Ssigma += (T_array[indicator] - T_true)**2
-            Ssigma = 3*np.sqrt(Ssigma/(N_cutting*(N_cutting-1)))
+            for indicator in range(K_index+1):
+                Ssigma += (arrT[indicator] - T_true)**2
+            Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
             order_Error = -int(np.log10(Ssigma))+1    
-            res += '    Period: ' +  str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '\n'
-            res += '\n'
             
-            results_path =  path_file + '/Results/' + 'results_' + name + '.dat'
-            cutted_dots_path = path_file + '/Results/' + 'Number_of_cutted_dots_' + name + '.dat'
-            with open(results_path, 'w') as f:
-                f.writelines(res)
-            with open(cutted_dots_path, 'w') as f:
-                f.writelines(cut_res)
-            entT.insert(0, str(np.round(T_true, order_Error)))
+            entT.insert(0, str(2))
+	    #entT.insert(0, str(np.round(T_true, order_Error)))
             entdT.insert(0, str(np.round(Ssigma, order_Error)))
             t_0 = time.time() - start_time
             enttime[1].insert(0, str(round(t_0)-60*int(t_0/60)))    #fill windows with the values
@@ -451,7 +426,7 @@ def Manual_work():
         
     window = tnk.Tk()                                           #start window
     bcg_cl = '#9999FF'                                          #background color
-    window.title("Period D&P V5.4")                             #title of the window
+    window.title("Period D&P V5.2")                             #title of the window
     w = 900                                                     #width and height
     h = 350
     window.geometry(str(w) + 'x' + str(h))                      #set size
@@ -471,7 +446,7 @@ def Manual_work():
     ent_TypeFile.place(x = 250, y = 72)
     lb_par.place(x = 20, y = 135)
     
-    text_init = ['T approximately', 'Error of T', 'File with parameters']
+    text_init = ['T approximately', 'Error of Τ', 'File with parameters']
     init_param = [tnk.Entry(window, font = ('Bookman Old Style', 14), width = 12) for i in range(3)]
     init_param_lables = [tnk.Label(window, font = ('Century', 14), text = text_init[i], bg=bcg_cl) for i in range(3)]
     for i in range(3):
@@ -510,7 +485,7 @@ def Automatic_work():
         
     window = tnk.Tk()
     bcg_cl = '#9999FF'
-    window.title("Period D&P V5.4")
+    window.title("Period D&P V5.2")
     w = 550
     h = 320
     window.geometry(str(w) + 'x' + str(h))
@@ -531,8 +506,8 @@ def Automatic_work():
     ent_Par_file = tnk.Entry(window, font = ('Bookman Old Style', 14), width = 12)
     ent_Par_file.place(x = 110, y = 200)
     ent_Par_file.insert(0, 'Parametrs.txt')
-    ent_TaskFile.insert(0, 'Task1.txt')
-    ent_Tmax.insert(0, '10')
+    ent_TaskFile.insert(0, 'Task.txt')
+    #ent_Tmax.insert(0, '10')
     
     """==========================================="""
     """MAIN FUNCTION FOR AUTOMATIC MODE"""
@@ -556,9 +531,8 @@ def Automatic_work():
         while (i < len(s)):
             if (s[i][0] == "#"):
                 del s[i]
-            i += 1                    
-        res = ' Star     T\n'
-        cut_res = ' Star   Iteration   % of cutted dots \n'
+            i += 1       
+        res = '  Name          T             time\n'             
         start_time_0 = time.time()
         ent_progress_1.insert(0, '0')
         ent_progress_2.insert(0, str(len(s)))
@@ -566,75 +540,68 @@ def Automatic_work():
                 os.mkdir('Results')
         
         for i in range(N_stars):
-            try:
-                start_time = time.time()
-                a = s[i].split()
-                name = a[0]
-                ftype = a[1]
+            #try:
+            start_time = time.time()
+            a = s[i].split()
+            name = a[0]
+            ftype = a[1]
+            res += name + '  '
+            
+            sub_name = path_file + '/Results/' + name
+            if (not os.path.exists(sub_name)):
+                os.mkdir(sub_name)
+
+            x, y, y_err, Number_of_elements0 = read_data(name, ftype)
+            A0 = (max(y)-min(y)) / 2
+            Tappr, Terr, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, TT_max, TT_min_par, Presize_appr_T, name, dpi_picture, i, N_cutting)
+            if not Error_program:
+                ans_ideal, T, ddT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size, i, N_cutting)
+                arrT = []
+                arrT.append(T)
+                ans_ideal_2=[]
                 
-                sub_name = path_file + '/Results/' + name
-                if (not os.path.exists(sub_name)):
-                    os.mkdir(sub_name)
-    
-                x, y, y_err, Number_of_elements0 = read_data(name, ftype)
-                A0 = (max(y)-min(y)) / 2
-                Tappr, Terr, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, TT_max, TT_min_par, Presize_appr_T, name, dpi_picture, i, N_cutting)
-                if not Error_program:
-                    ans_ideal, T, ddT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, i, N_cutting)
-                    arr = [[] for i in range(N_cutting+2)]
-                    arr[0] = [name, T, '']
-                    cut_dots = [[] for i in range(N_cutting+2)]
-                    cut_dots[0] = [name, '    0', '             0.0']
-                    ans_ideal_2=[]
-                    
-                    T_true = 0
-                    
-                    for indicator in range(N_cutting + 1):
-                        T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
-                        arr[indicator+1] = ['       ', T, '']  
-                        Number_of_elements = '             ' + str(np.round((1 - len(x)/Number_of_elements0)*100, 1))
-                        cut_dots[indicator+1] = ['           ', (indicator + 1), (Number_of_elements)]  
+                T_true = T
+                K_index = 0
+                for indicator in range(N_cutting + 1):
+                    T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
+                    if not (T == arrT[K_index]):
+                        arrT.append(T)
+                        K_index += 1
                         T_true += T
-                        
-                    T_true = T_true/(N_cutting+1)
-                    Ssigma = 0
-                    for indicator in range(N_cutting+1):
-                        Ssigma += (arr[indicator + 1][1] - T_true)**2
-                    Ssigma = 3*np.sqrt(Ssigma/(N_cutting*(N_cutting+1)))
-                        
-                    for j in range(N_cutting+1):
-                        for p in range(3):
-                            res += str(arr[j][p]) + ' '
-                            cut_res += str(cut_dots[j][p]) + ' '
-                        res += '\n'
-                        cut_res += '\n'
-                      
-                    t0 = time.time() - start_time   
                     
-                    order_Error = -int(np.log10(Ssigma))+1    
-                    res += '    Period: ' +  str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '\n'
-                    res += '    Time of calculations: ' + str(int(t0/60)) + 'min ' + str(round(t0)-60*int(t0/60)) + 's'
-                    res += '\n'
-                    
-                    start_time = t0
-                    k = int(ent_progress_1.get())
-                    ent_progress_1.delete(0, len(ent_progress_1.get()))
-                    ent_progress_1.insert(0, str(k+1))
-                else:
-                    res += name + '   Error #1\n'
-                    cut_res += name + '   Error #1\n'
-                    t0 = time.time() - start_time   
-                    start_time = t0
-            except: 
-                print("Problem with " + str(i+1) + " star. Please check in manual mode")
-                res += 'Problem. Check ' + name + 'manually'
-                res += '\n'
+                T_true = T_true/(K_index+1)
+                Ssigma = 0
+                for indicator in range(K_index+1):
+                    Ssigma += (arrT[indicator] - T_true)**2
+                Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
+                  
+                t0 = time.time() - start_time   
+                
+                order_Error = -int(np.log10(Ssigma))+1    
+                res += str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '    '+ str(int(t0/60)) + 'min ' + str(round(t0)-60*int(t0/60)) + 's' + '\n'                
+                start_time = t0
+                k = int(ent_progress_1.get())
+                ent_progress_1.delete(0, len(ent_progress_1.get()))
+                ent_progress_1.insert(0, str(k+1))
+                
+            else:
+                res += name + '   Error #1\n'
+                t0 = time.time() - start_time   
+                start_time = t0
+            #except: 
+             #   print("Problem with " + str(i+1) + " star. Please check in manual mode")
+              #  res += 'Problem. Check ' + name + 'manually'
+               # res += '\n'
+                
+        task_file = str(task_file)
+        for j in range(len(task_file)):
+            if task_file[len(task_file) - j -1] == '.':
+                task_file = task_file[:(len(task_file) - j - 1)]
+                break
+        
         results_path =  path_file + '/Results/' + 'results_' + task_file + '.dat'
-        cutted_dots_path = path_file + '/Results/' + 'Number_of_cutted_dots_' + task_file + '.dat'
         with open(results_path, 'w') as f:
             f.writelines(res)
-        with open(cutted_dots_path, 'w') as f:
-            f.writelines(cut_res)
         t_0 = time.time() - start_time_0  
         enttime[1].insert(0, str(round(t_0)-60*int(t_0/60)))
         enttime[0].insert(0, str(int(t_0/60)))
@@ -662,7 +629,7 @@ def Automatic_work():
 
 window_0 = tnk.Tk()
 bcg_cl = '#9999FF'
-window_0.title("Period D&P V5.4")
+window_0.title("Period D&P V5.2")
 w = 390
 h = 100
 window_0.geometry(str(w) + 'x' + str(h))
