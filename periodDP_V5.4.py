@@ -18,16 +18,16 @@ import os                        #to work with directories
 """Path to files"""
 """==========================================="""
 
-path_file = os.getcwd()
+path_file = os.getcwd()          #constant for the path to the folder, where code is stored
 
 """==========================================="""
 """Errors"""
 """==========================================="""
 
-def Error_1():
+def Error_1():                   #function to display an error in Manual mode that is caused by inputting not correct value of T
     window_error = tnk.Tk()
     bcg_cl = '#ffff00'
-    window_error.title("Period D&P V5.2")
+    window_error.title("Period D&P V5.4")
     w = 550
     h = 180
     window_error.geometry(str(w) + 'x' + str(h))
@@ -43,6 +43,25 @@ def Error_1():
     lb_describtion_2.place(x = 90, y = 110) 
     window_error.mainloop()
 
+def Error_2(File):                   #function to display an error in Manual mode that is caused by inputting not correct value of T
+    window_error = tnk.Tk()
+    bcg_cl = 'green'
+    window_error.title("Period D&P V5.4")
+    w = 850
+    h = 180
+    window_error.geometry(str(w) + 'x' + str(h))
+    window_error.config(bg=bcg_cl)
+    window_error.resizable(width=False, height=False)
+    
+    lb_error = tnk.Label(window_error, font = ('Algerian', 19), text = 'Error #2', bg=bcg_cl)                   
+    error_text = 'The program has not found ' + File
+    lb_describtion_1 = tnk.Label(window_error, font = ('Bookman Old Style', 14), text = error_text, bg=bcg_cl)                 #words and labels
+    lb_describtion_2 = tnk.Label(window_error, font = ('Bookman Old Style', 14), text = 'Please check and repeat', bg=bcg_cl)
+    
+    lb_error.place(x = 350, y = 30)               #their place on the window
+    lb_describtion_1.place(x = 20, y = 80)       
+    lb_describtion_2.place(x = 240, y = 110) 
+    window_error.mainloop()
 """==========================================="""
 """TRIGONOMETRIC POLYNOMIAL FUNCTIONS"""
 """==========================================="""
@@ -66,42 +85,56 @@ def sin1(t, pp, n):                 #the same as sin but give you not array, but
 
 def read_data(name, ftype):
     Name = path_file + '\\data\\' + name + ftype    #data is stored in the same sirectory in the folder "data"
-    with open(Name, 'r') as file:                   #each file should be named "Name_star.type"
-        x, y, y_err = [], [], []                    #set arrays
-        lines = file.readlines()                    #lines - list; read() - not work
-        for i in lines: 
-            if (not i.startswith("#")):             #to avoid comments
-                data = i.split()                    #split into words because of spaces
-                x.append(float(data[0]))
-                y.append(float(data[1]))
-                y_err.append(float(data[2]))
-        x, y, y_err = np.array(x), np.array(y), np.array(y_err)      #to make arrays more cool and suitable with method of LS
-    Number_of_elements_0 = len(x)  
-    return x, y, y_err, Number_of_elements_0
+    try:
+        with open(Name, 'r') as file:                   #each file should be named "Name_of_star.type"
+            x, y, y_err = [], [], []                    #set arrays
+            lines = file.readlines()                    #lines - list; read() - not work
+            for i in lines: 
+                if (not i.startswith("#")):             #to avoid comments
+                    data = i.split()                    #split into words because of spaces
+                    x.append(float(data[0]))
+                    y.append(float(data[1]))
+                    y_err.append(float(data[2]))
+            x, y, y_err = np.array(x), np.array(y), np.array(y_err)      #to make arrays more cool and suitable with method of LS
+        Number_of_elements_0 = len(x) 
+        Error_program = 0
+    except FileNotFoundError:
+        Error_program = 1
+        x = 0
+        y = 0
+        y_err = 0
+        Number_of_elements_0 = 0
+    return x, y, y_err, Number_of_elements_0, Error_program
 
 """==========================================="""
 """READING PARAMENTRS FROM FILE"""
 """==========================================="""
 def read_parametrs(Parametrs_file):
     parametrs = []
-    with open(Parametrs_file, 'r') as file:  
-        for line in file:           
-            if (not line.startswith("#")):         #to avoid comments
-                parametrs.append(float(line)) 
-    n_app_T = int(parametrs[0])                    #number of additions in Fourie series in function Approximation T
-    n_becoming_perfect = int(parametrs[1])         #number of additions in Fourie series in function becoming perfect
-    n_bec_per_sec = int(parametrs[2])              #number of additions in Fourie series in function becoming perfect second
-    edge_appr_T = float(parametrs[3])              #to cut minimum
-    Parametr_sigma = float(parametrs[4])           #to cut phase diagramm
-    TT_min_par = float(parametrs[5])               #the minimum value of period in Periodogram
-    Presize_appr_T = float(parametrs[6])           #the distance between points in the Periodogram
-    ratio = float(parametrs[7])                    #size of Phase picture (x:y)
-    max_width = float(parametrs[8])                #to cut Phase diagramm
-    N_cutting = int(parametrs[9])                  #Number of pictures of Phase diagram and also detalization of cutting it
-    N_fragmentation = int(parametrs[10])           #detalization of cuttind phase diagram
-    dpi_picture = int (parametrs[11])              #quality of picture
-    dots_size = int(parametrs[12])                 #size of dots ob phase curves
-    return n_app_T, n_becoming_perfect, edge_appr_T, Parametr_sigma, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size
+    try: 
+        with open(Parametrs_file, 'r') as file:  
+            for line in file:           
+                if (not line.startswith("#")):         #to avoid comments
+                    parametrs.append(float(line)) 
+        n_app_T = int(parametrs[0])                    #number of additions in Fourie series in function Approximation T
+        n_becoming_perfect = int(parametrs[1])         #number of additions in Fourie series in function becoming perfect
+        n_bec_per_sec = int(parametrs[2])              #number of additions in Fourie series in function becoming perfect second
+        edge_appr_T = float(parametrs[3])              #to cut minimum
+        Parametr_sigma = float(parametrs[4])           #to cut phase diagramm
+        TT_min_par = float(parametrs[5])               #the minimum value of period in Periodogram
+        Presize_appr_T = float(parametrs[6])           #the distance between points in the Periodogram
+        ratio = float(parametrs[7])                    #size of Phase picture (x:y)
+        max_width = float(parametrs[8])                #to cut Phase diagramm
+        N_cutting = int(parametrs[9])                  #Number of pictures of Phase diagram and also detalization of cutting it
+        N_fragmentation = int(parametrs[10])           #detalization of cuttind phase diagram
+        dpi_picture = int (parametrs[11])              #quality of picture
+        dots_size = int(parametrs[12])                 #size of dots ob phase curves
+        Error_program = 0
+    except FileNotFoundError:
+        Error_program = 1
+        n_app_T, n_becoming_perfect, edge_appr_T, Parametr_sigma, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size = 0
+    return n_app_T, n_becoming_perfect, edge_appr_T, Parametr_sigma, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size, Error_program
+
 """==========================================="""
 """CALCULATING PRESIZE VALUE OF PERIOD"""
 """==========================================="""
@@ -109,7 +142,7 @@ def becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, 
     p0 = np.zeros(2*n_becoming_perfect + 2)             #start conditions 
     p0[0] = ans_start[0]                                #first = ideal from periodogram
     p0[1] = Tappr
-    if(n_becoming_perfect > n_app_T):
+    if(n_becoming_perfect > n_app_T):                   #set conditions the same as the best in ApproximationT
         for i in range(2*n_app_T):
              p0[i+2] = ans_start[i+1]      
         for i in range(2*n_app_T + 2, 2*n_becoming_perfect + 2):
@@ -127,7 +160,7 @@ def becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, 
     error_T = error[1]
     ans_ideal  = ans[0]         #ideal parametrs
                              
-    order_Error = -int(np.log10(error_T))+1   #evaluate order of Error
+    order_Error = -int(np.log10(error_T))+1                     #evaluate order of Error
     save_path = path_file + '\\Results\\' + name + '\\'         #save results in the folder "Results"
 
     fig = plt.figure(I*(Repeats+2) + 2)             #plot dots and curve
@@ -221,7 +254,6 @@ def becoming_perfect_second(I, answ, x, y, y_err, n_becoming_perfect, name, ftyp
     y_0_error = list(y_err)
  
     k=0
-    #d = max_width  / (1 + (max_width - Parametr)* I/((N_cutting-1)*Parametr))    #width of cutting     
     d = max_width * (Parametr/max_width)**(I/(N_cutting - 1))
     
     if not (I == N_cutting):
@@ -368,47 +400,53 @@ def Manual_work():
         dT = float(init_param[1].get())
         Parametrs_file = init_param[2].get()
                                                         #read parametrs
-        n_app_T, n_becoming_perfect, edge_appr_T, Parametr, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size = read_parametrs(Parametrs_file) 
-        
-        if (not os.path.exists('Results')):      # Create target Directory
-            os.mkdir('Results')       
-        sub_name = path_file + '\\Results\\' + name
-        if (not os.path.exists(sub_name)):
-            os.mkdir(sub_name)
-        
-        x, y, y_err, Number_of_elements0 = read_data(name, ftype)       #getting data from file
-        A0 = (max(y)-min(y)) / 2                                                            #approximate amplitude
-        Period, Period_error, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, (T + dT), (T - dT), Presize_appr_T, name, dpi_picture) #approximate period
+        n_app_T, n_becoming_perfect, edge_appr_T, Parametr, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size, Error_program = read_parametrs(Parametrs_file) 
         if not (Error_program):
-            ans_ideal, T, ddT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size)                         #more presize period
-            ans_ideal_2 = 1
-            T_true = T
-            arrT = []
-            arrT.append(T)
-            K_index = 0
+            if (not os.path.exists('Results')):      # Create target Directory
+                os.mkdir('Results')       
+            sub_name = path_file + '\\Results\\' + name
+            if (not os.path.exists(sub_name)):
+                os.mkdir(sub_name)
             
-            for indicator in range(N_cutting + 1):          #N_cutting times cut phase diagram
-                T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
-                if not (indicator == N_cutting) and not T==arrT[K_index]:
+            x, y, y_err, Number_of_elements0, Error_program = read_data(name, ftype)       #getting data from file
+            if not (Error_program):
+                A0 = (max(y)-min(y)) / 2                                                            #approximate amplitude
+                Period, Period_error, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, (T + dT), (T - dT), Presize_appr_T, name, dpi_picture) #approximate period
+                if not (Error_program):
+                    ans_ideal, T, ddT = becoming_perfect(Period, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size)                         #more presize period
+                    ans_ideal_2 = 1
+                    T_true = T
+                    arrT = []
                     arrT.append(T)
-                    K_index += 1
-                    T_true += T
-                
-            T_true = T_true/(K_index+1)
-            Ssigma = 0
-            for indicator in range(K_index+1):
-                Ssigma += (arrT[indicator] - T_true)**2
-            Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
-            order_Error = -int(np.log10(Ssigma))+1    
-            
-            entT.insert(0, str(np.round(T_true, order_Error)))
-            entdT.insert(0, str(np.round(Ssigma, order_Error)))
-            t_0 = time.time() - start_time
-            enttime[1].insert(0, str(round(t_0)-60*int(t_0/60)))    #fill windows with the values
-            enttime[0].insert(0, str(int(t_0/60)))
+                    K_index = 0
+                    
+                    for indicator in range(N_cutting + 1):          #N_cutting times cut phase diagram
+                        T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size)
+                        if not (indicator == N_cutting) and not T==arrT[K_index]:
+                            arrT.append(T)
+                            K_index += 1
+                            T_true += T
+                        
+                    T_true = T_true/(K_index+1)
+                    Ssigma = 0
+                    for indicator in range(K_index+1):
+                        Ssigma += (arrT[indicator] - T_true)**2
+                    Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
+                    order_Error = -int(np.log10(Ssigma))+1    
+                    
+                    entT.insert(0, str(np.round(T_true, order_Error)))
+                    entdT.insert(0, str(np.round(Ssigma, order_Error)))
+                    t_0 = time.time() - start_time
+                    enttime[1].insert(0, str(round(t_0)-60*int(t_0/60)))    #fill windows with the values
+                    enttime[0].insert(0, str(int(t_0/60)))
+                else:
+                    Error_1()        
+            else:
+                Name = path_file + '\\data\\' + name + ftype
+                Error_2(Name)
         else:
-            Error_1()        
-        
+            Error_2(Parametrs_file)
+ 
     """==========================================="""
     """CLEARING WINDOW"""
     """==========================================="""
@@ -506,7 +544,6 @@ def Automatic_work():
     ent_Par_file.place(x = 110, y = 200)
     ent_Par_file.insert(0, 'Parametrs.txt')
     ent_TaskFile.insert(0, 'Task.txt')
-    #ent_Tmax.insert(0, '10')
     
     """==========================================="""
     """MAIN FUNCTION FOR AUTOMATIC MODE"""
@@ -521,86 +558,95 @@ def Automatic_work():
         task_file = ent_TaskFile.get()
         TT_max = float(ent_Tmax.get())
         Parametrs_file = ent_Par_file.get()
-        n_app_T, n_becoming_perfect, edge_appr_T, Parametr, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size = read_parametrs(Parametrs_file)
-        
-        with open(task_file, 'r') as f:
-            s = f.readlines()
-        N_stars = len(s)       
-        i = 0
-        while (i < len(s)):
-            if (s[i][0] == "#"):
-                del s[i]
-            i += 1       
-        res = '  Name           T             time\n'             
-        start_time_0 = time.time()
-        ent_progress_1.insert(0, '0')
-        ent_progress_2.insert(0, str(len(s)))
-        if (not os.path.exists('Results')):      # Create target Directory
-                os.mkdir('Results')
-        
-        for i in range(N_stars):
-            #try:
-            start_time = time.time()
-            a = s[i].split()
-            name = a[0]
-            ftype = a[1]
-            res += name + '  '
+        n_app_T, n_becoming_perfect, edge_appr_T, Parametr, TT_min_par, Presize_appr_T, ratio, N_cutting, n_bec_per_sec, max_width, N_fragmentation, dpi_picture, dots_size, Error_program = read_parametrs(Parametrs_file)
+        if not Error_program:
+            with open(task_file, 'r') as f:
+                s = f.readlines()
+            N_stars = len(s)       
+            i = 0
+            while (i < len(s)):
+                if (s[i][0] == "#"):
+                    del s[i]
+                i += 1       
+            res = '  Name           T             time\n'             
+            start_time_0 = time.time()
+            ent_progress_1.insert(0, '0')
+            ent_progress_2.insert(0, str(len(s)))
+            if (not os.path.exists('Results')):      # Create target Directory
+                    os.mkdir('Results')
             
-            sub_name = path_file + '\\Results\\' + name
-            if (not os.path.exists(sub_name)):
-                os.mkdir(sub_name)
-
-            x, y, y_err, Number_of_elements0 = read_data(name, ftype)
-            A0 = (max(y)-min(y)) / 2
-            Tappr, Terr, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, TT_max, TT_min_par, Presize_appr_T, name, dpi_picture, i, N_cutting)
-            if not Error_program:
-                ans_ideal, T, ddT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size, i, N_cutting)
-                arrT = []
-                arrT.append(T)
-                ans_ideal_2=[]
-                
-                T_true = T
-                K_index = 0
-                for indicator in range(N_cutting + 1):
-                    T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
-                    if not (T == arrT[K_index]):
-                        arrT.append(T)
-                        K_index += 1
-                        T_true += T
+            for i in range(N_stars):
+                try:
+                    start_time = time.time()
+                    a = s[i].split()
+                    name = a[0]
+                    ftype = a[1]
+                    res += name + '  '
                     
-                T_true = T_true/(K_index+1)
-                Ssigma = 0
-                for indicator in range(K_index+1):
-                    Ssigma += (arrT[indicator] - T_true)**2
-                Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
-                  
-                t0 = time.time() - start_time   
-                
-                order_Error = -int(np.log10(Ssigma))+1    
-                res += str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '    '+ str(int(t0/60)) + 'min ' + str(round(t0)-60*int(t0/60)) + 's' + '\n'                
-                start_time = t0
-                k = int(ent_progress_1.get())
-                ent_progress_1.delete(0, len(ent_progress_1.get()))
-                ent_progress_1.insert(0, str(k+1))
-                
-            else:
-                res += name + '   Error #1\n'
-                t0 = time.time() - start_time   
-                start_time = t0
-            #except: 
-             #   print("Problem with " + str(i+1) + " star. Please check in manual mode")
-              #  res += 'Problem. Check ' + name + 'manually'
-               # res += '\n'
-                
-        task_file = str(task_file)
-        for j in range(len(task_file)):
-            if task_file[len(task_file) - j -1] == '.':
-                task_file = task_file[:(len(task_file) - j - 1)]
-                break
+                    sub_name = path_file + '\\Results\\' + name
+                    if (not os.path.exists(sub_name)):
+                        os.mkdir(sub_name)
         
-        results_path =  path_file + '\\Results\\' + 'results_' + task_file + '.dat'
-        with open(results_path, 'w') as f:
-            f.writelines(res)
+                    x, y, y_err, Number_of_elements0, Error_program = read_data(name, ftype)
+                    if not Error_program:
+                        A0 = (max(y)-min(y)) / 2
+                        Tappr, Terr, ans_start, Error_program = Approximation_T(x, y, y_err, A0, n_app_T, edge_appr_T, TT_max, TT_min_par, Presize_appr_T, name, dpi_picture, i, N_cutting)
+                        if not Error_program:
+                            ans_ideal, T, ddT = becoming_perfect(Tappr, A0, x, y, y_err, n_becoming_perfect, name, n_app_T, ans_start, dpi_picture, dots_size, i, N_cutting)
+                            arrT = []
+                            arrT.append(T)
+                            ans_ideal_2=[]
+                            
+                            T_true = T
+                            K_index = 0
+                            for indicator in range(N_cutting + 1):
+                                T, ddT, x, y, y_err, ans_ideal_2 = becoming_perfect_second(indicator, ans_ideal, x, y, y_err, n_becoming_perfect, name, ftype, Parametr, n_bec_per_sec, ans_ideal_2, ratio, max_width, N_cutting, N_fragmentation, dpi_picture, dots_size, i)               
+                                if not (T == arrT[K_index]):
+                                    arrT.append(T)
+                                    K_index += 1
+                                    T_true += T
+                                
+                            T_true = T_true/(K_index+1)
+                            Ssigma = 0
+                            for indicator in range(K_index+1):
+                                Ssigma += (arrT[indicator] - T_true)**2
+                            Ssigma = 3*np.sqrt(Ssigma/(K_index*(K_index+1)))
+                              
+                            t0 = time.time() - start_time   
+                            
+                            order_Error = -int(np.log10(Ssigma))+1    
+                            res += str(np.round(T_true, order_Error)) + ' +- ' + str(np.round(Ssigma, order_Error)) + '    '+ str(int(t0/60)) + 'min ' + str(round(t0)-60*int(t0/60)) + 's' + '\n'                
+                            start_time = t0
+                            k = int(ent_progress_1.get())
+                            ent_progress_1.delete(0, len(ent_progress_1.get()))
+                            ent_progress_1.insert(0, str(k+1))
+                            
+                        else:
+                            res += name + '   Error #1\n'
+                            t0 = time.time() - start_time   
+                            start_time = t0
+                    else: 
+                        res += '     Error #2 -- data\n'
+                        t0 = time.time() - start_time   
+                        start_time = t0
+                except: 
+                    print("Problem with " + str(i+1) + " star. Please check in manual mode")
+                    res += 'Problem. Check ' + name + 'manually'
+                    res += '\n'
+                    
+            task_file = str(task_file)
+            for j in range(len(task_file)):
+                if task_file[len(task_file) - j -1] == '.':
+                    task_file = task_file[:(len(task_file) - j - 1)]
+                    break
+            
+            results_path =  path_file + '\\Results\\' + 'results_' + task_file + '.dat'
+            with open(results_path, 'w') as f:
+                f.writelines(res)
+        else: 
+            res += '    Error #2 -- Parametrs\n'
+            t0 = time.time() - start_time   
+            start_time = t0
         t_0 = time.time() - start_time_0  
         enttime[1].insert(0, str(round(t_0)-60*int(t_0/60)))
         enttime[0].insert(0, str(int(t_0/60)))
