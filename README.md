@@ -2,13 +2,14 @@ Period_D&P is a program which calculates parameters of flux changes for differen
 It uses photometric observations from text file, plots light curve, makes fitting by Fourier series, then calculates 
 value of the period, plots phase curve and cuts all points which have too large deviation between fit and observations.
 
-For using this code you need either install Spyder with Anaconda or just include next libraries:
+For using this code you need either install Spyder with Anaconda or just download next libraries:
 scipy.optimize     (for the method of LS);
 numpy              (for math stuff);
 matplotlib.pyplot  (for plotting);
 time               (to know time of calculations);
 tkinter            (graphic interface);
-os      	       (to create directories)
+os      	   (to create directories)
+In linux version these commands are included in .sh file
 
 Authors:
 
@@ -20,5 +21,5 @@ Authors:
   
   DOI: 10.5281/zenodo.3257785
  
- Article:
+Article:
   "Revealing nature of HD63401"
