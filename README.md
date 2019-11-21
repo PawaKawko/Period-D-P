@@ -3,19 +3,22 @@ It uses photometric observations from text file, plots light curve, makes fittin
 value of the period, plots phase curve and cuts all points which have too large deviation between fit and observations.
 
 For using this code you need either install Spyder with Anaconda or just download next libraries:
-scipy.optimize     (for the method of LS);
-numpy              (for math stuff);
-matplotlib.pyplot  (for plotting);
-time               (to know time of calculations);
-tkinter            (graphic interface);
-os      	   (to create directories)
-In linux version these commands are included in .sh file
+scipy.optimize
+numpy   
+matplotlib.pyplot 
+time             
+tkinter         
+os   
+
+In linux, all you need - to run the .sh file (these commands are included  there)
 
 Authors:
 
   Pavlo Kashko (kashko.pavlo@gmail.com) - main author;
   
   Dmytro Tvardovskyi (dmytro.tvardovskyi@gmail.com) - graphic interface
+  
+  Viktor Khalack - scientific advisor
   
   ©Kashko2019 (see LICENSE)
   
