@@ -1,4 +1,4 @@
-Please use perios_V1.0.0.py as last and stable version
+Please use periodDP_V1.0.0.py as last and stable version
 
 Period_D&P is a program which calculates parameters of flux changes for different types of periodical variable stars. 
 It uses photometric observations from text file, plots light curve, makes fitting by Fourier series, then calculates 
