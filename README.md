@@ -20,5 +20,12 @@ Authors:
   
   DOI: 10.5281/zenodo.3257785
  
-Article:
-  "Revealing nature of HD63401"
+If use, please cite:
+  @misc{kashko2020revealing,
+      title={Revealing the nature of HD63401},
+      author={Pavlo Kashko and Viktor Khalack and Oleksandr Kobzar and Dmytro Tvardovskyi and Mathieu Perron-Cormier},
+      year={2020},
+      eprint={2003.02925},
+      archivePrefix={arXiv},
+      primaryClass={astro-ph.SR}
+  }
